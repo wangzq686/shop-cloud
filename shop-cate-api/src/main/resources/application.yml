@@ -1,0 +1,49 @@
+logging:
+  level:
+    com:
+      fh:
+        shop:
+          api: debug
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+  global-config:
+    db-config:
+      id-type: auto
+      table-prefix: t_
+  mapper-locations: classpath*:mapper/*.xml,classpath:mappers/*.xml
+server:
+  port: 8180
+spring:
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      initial-size: 5
+      max-active: 20
+      max-pool-prepared-statement-per-connection-size: 20
+      max-wait: 60000
+      min-evictable-idle-time-millis: 300000
+      min-idle: 5
+      password: 123456
+      pool-prepared-statements: true
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      time-between-eviction-runs-millis: 60000
+      username: wzq
+      validation-query: SELECT 1 FROM DUAL
+      validation-query-timeout: 30000
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://localhost:3306/t_attr?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=true
+  application:
+    name: shop-cate-api
+
+
+eureka:
+  client:
+    register-with-eureka: true #注册到Eureka的注册中心
+    fetch-registry: true #获取注册实例列表
+    service-url:
+      defaultZone: http://replica1:8002/eureka/,http://replica2:8003/eureka/ #同时注册到两个注册中心
+#      defaultZone: http://localhost:8000/eureka/ #配置注册中心地址
+

@@ -1,0 +1,166 @@
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>订单展示</title>
+    <!-- Bootstrap -->
+    <!-- Bootstrap -->
+    <link href="../js/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../js/DataTables/DataTables-1.10.20/css/dataTables.bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<table class="table table-bordered" id="orderTable">
+    <thead>
+        <tr>
+            <th>订单编号</th>
+            <th>订单总价格</th>
+            <th>总个数</th>
+            <th>状态</th>
+            <th>创建时间</th>
+            <th>收件人名称</th>
+            <th>收件人地址</th>
+            <th>收件人电话</th>
+            <th>支付方式</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <!--订单表格-->
+    <tbody>
+
+    </tbody>
+</table>
+
+
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="../js/jquery.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="../js/bootstrap/js/bootstrap.min.js"></script>
+<script src="../js/DataTables/DataTables-1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="../js/DataTables/DataTables-1.10.20/js/dataTables.bootstrap.min.js"></script>
+
+<script src="../js/bootbox/bootbox.all.min.js"></script>
+<script src="../js/bootbox/bootbox.locales.min.js"></script>
+<script src="../js/bootbox/bootbox.min.js"></script>
+
+
+<script src="../js/common.js"></script>
+<script src="../js/jquery.cookie.min.js"></script>
+
+<script>
+    $(function () {
+        initTable();
+    });
+
+
+
+    function initTable(){
+        $.ajax({
+            type:"get",
+            url: server_url+"/order/orderList",
+            beforeSend:function (xhr){
+                let v_token=$.cookie("token");
+                xhr.setRequestHeader("x-auth",v_token);
+            },
+            success:function (result){
+                if(result.code==200){
+                    // console.log(res.data);
+                    var v_orderList=result.data;
+                    var v_html="";
+                    var v_orderStatusText="";
+                    for (let v_order of v_orderList) {
+
+                        // 0:未支付[创建订单成功]    10: 已支付[未发货]        20:已发货 [待收货]    30: 交易成功        40: 交易关闭 |
+                        if(v_order.status==0){
+                            v_orderStatusText="未支付";
+                        }else if(v_order.status==10){
+                            v_orderStatusText="已支付";
+                        }else if(v_order.status==20){
+                            v_orderStatusText="已发货";
+                        }else if(v_order.status==30){
+                            v_orderStatusText="交易成功";
+                        }else if(v_order.status==40){
+                            v_orderStatusText="交易关闭";
+                        }
+// <font color="red"></font>
+                        v_html+='<tr>';
+                            v_html+='<td>'+v_order.id+'</td>'
+                            v_html+='<td><font color="red">'+v_order.totalPrice+'</font></td>'
+                            v_html+='<td>'+v_order.totalCount+'</td>'
+                            if(v_orderStatusText=="未支付"){
+                                v_html+='<td><font color="red">'+v_orderStatusText+'</font></td>'
+                            }else if(v_orderStatusText=="已支付"){
+
+                                v_html+='<td><font color="#7fff00">'+v_orderStatusText+'</font></td>'
+                            }else{
+                                v_html+='<td>'+v_orderStatusText+'</td>'
+                            }
+                            v_html+='<td>'+v_order.createTime+'</td>'
+                            v_html+='<td>'+v_order.recipientName+'</td>'
+                            v_html+='<td>'+v_order.recipientAddress+'</td>'
+                            v_html+='<td>'+v_order.recipientPhone+'</td>'
+                            v_html+='<td>'+v_order.payType+'</td>'
+                            v_html+='<td><a href="#" onclick="cancel0rder(\''+v_order.id+'\')"><font color="#d2691e">取消订单</font></a>&nbsp;/&nbsp;<a href="#" onclick="pay(\''+v_order.id+'\')">ali支付</a></td>';
+                        v_html+='</tr>';
+                    }
+
+                    $("#orderTable tbody").html(v_html);
+                }else if(result.code==5100||result.code==5101||result.code==5102||result.code==5103){
+                    location.href="login.html";
+                }
+            }
+        })
+    }
+
+    //取消订单
+    function cancel0rder(orderId){
+        console.log(orderId);
+        $.ajax({
+            type:"post",
+            url: server_url+"/order/cancel0rder",
+            data:{"id":orderId},
+            beforeSend:function (xhr){
+                let v_token=$.cookie("token");
+                xhr.setRequestHeader("x-auth",v_token);
+            },
+            success:function (result){
+                if(result.code==200){
+                    initTable();
+                    // console.log(res.data);
+                }else if(result.code==5100||result.code==5101||result.code==5102||result.code==5103){
+                    location.href="login.html";
+                }
+            }
+        })
+    }
+
+    //支付订单
+    function pay(orderId){
+        $.ajax({
+            type:"post",
+            url: server_url+"/ali/aliPay",
+            data:{"orderId":orderId},
+            beforeSend:function (xhr){
+                let v_token=$.cookie("token");
+                xhr.setRequestHeader("x-auth",v_token);
+            },
+            success:function (result){
+                if(result.code==200){
+
+                    $("body").html(result.data);
+                }else if(result.code==7607){
+                    alert(result.msg);
+                }else if(result.code==5100||result.code==5101||result.code==5102||result.code==5103){
+                    location.href="login.html";
+                }
+            }
+        })
+    }
+
+</script>
+</body>
+</html>
