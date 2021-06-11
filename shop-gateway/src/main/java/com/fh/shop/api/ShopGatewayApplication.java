@@ -12,7 +12,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @SpringBootApplication
 @EnableZuulProxy
-@EnableSwagger2
+
 public class ShopGatewayApplication {
     public static void main(String[] args) {
         SpringApplication.run(ShopGatewayApplication.class,args);

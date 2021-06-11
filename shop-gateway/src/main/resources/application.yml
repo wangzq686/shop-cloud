@@ -11,17 +11,17 @@ spring:
     name: shop-gateway
 server:
   port: 9000
-zuul:
-  #路由规则
-  routes:
-    shop-cate-api: #微服务的名字 spring.application.name
-      path: /cates/** #对应访问的路径
-    shop-goods-api:
-      path: /goods/**
-    shop-member-api:
-      path: /members/**
-    shop-cart-api:
-      path: /carts/**
+#zuul:
+#  #路由规则
+#  routes:
+#    shop-cate-api: #微服务的名字 spring.application.name
+#      path: /cates/** #对应访问的路径
+#    shop-goods-api:
+#      path: /goods/**
+#    shop-member-api:
+#      path: /members/**
+#    shop-cart-api:
+#      path: /carts/**
 fh:
   shop:   #checkUrls 配置的是登录后才能访问的接口
     checkUrls: api/members/logout,api/members/findMember,api/carts/addItem,api/carts/findCart,api/carts/findCartCount,api/carts/deleteCartItem,api/carts/deleteBatchCartItem
